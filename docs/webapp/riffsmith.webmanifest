@@ -1,13 +1,13 @@
 {
- "name": "M-PYRE",
- "short_name": "M-PYRE",
+ "name": "Riffsmith",
+ "short_name": "Riffsmith",
  "id": "editor/",
  "start_url": "editor/",
  "scope": "./",
  "display": "standalone",
- "background_color": "#080000",
- "theme_color": "#080000",
- "description": "M-PYRE, the riffbox firmware for the M-VAVE FM-1: the editor and the installer, also without internet",
+ "background_color": "#0d0c0b",
+ "theme_color": "#0d0c0b",
+ "description": "Riffsmith, the guitar firmware for the M-VAVE FM-1: the editor and the installer, also without internet",
  "icons": [
   {
    "src": "icon-192.png",

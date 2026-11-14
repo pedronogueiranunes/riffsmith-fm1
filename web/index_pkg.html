@@ -1,103 +1,166 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
-     Copyright (C) 2026 History Of Sky (M-PYRE) -->
+     Copyright (C) 2026 History Of Sky (M-PYRE)
+     Copyright (C) 2026 Riffsmith contributors (the Riffsmith installer page) -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>M-PYRE installer</title>
-<!--PWA--><link rel="manifest" href="../m-pyre.webmanifest"><meta name="theme-color" content="#080000"><link rel="icon" href="../icon-192.png"><!--/PWA-->
+<title>Riffsmith for the M-VAVE FM-1 · installer</title>
+<meta name="description" content="Riffsmith: a guitar firmware for the M-VAVE FM-1, for indie, metal and reggae. Install it from the browser over USB.">
+<!--PWA--><link rel="manifest" href="../riffsmith.webmanifest"><meta name="theme-color" content="#0d0c0b"><link rel="icon" href="../icon-192.png"><!--/PWA-->
 <style>
   @font-face { font-family: "Barlow Condensed"; font-weight: 600; src: /*FONT*/local("Barlow Condensed SemiBold"); font-display: swap; }
-  :root { --bg: #080000; --fg: #f4e8de; --dim: #a08670; --tile: #1a0b06; --line: #3a1c12;
-          --ember: #ff8c1e; --fire: #e8481c; --red: #c0201a; --gold: #ffc35a; }
+  :root { color-scheme: dark; --bg: #0d0c0b; --fg: #f1ece4; --dim: #9b948a; --tile: #1a1816; --tile2: #23201d; --line: #322e2a;
+          --indie: #6fb3ff; --metal: #ff5a3c; --reggae: #4cc26a; --gold: #f2b84b; --warn: #f2b84b; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 15px/1.6 "Helvetica Neue", -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
-  main { max-width: 560px; margin: 0 auto; padding: 32px 16px 48px; }
-  .cond, h1, .tile b, button#go, .ed { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; }
-  .hero { display: flex; gap: 18px; align-items: center; }
-  .hero img { width: 150px; height: 150px; display: block; border: 1px solid var(--line); }
-  .hero .name { font: 600 54px/0.95 "Barlow Condensed", "Arial Narrow", sans-serif; color: var(--ember); letter-spacing: .02em; margin: 0; }
-  .hero .by { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; margin: 6px 0 0; }
-  .strip { display: flex; height: 4px; margin: 22px 0 24px; }
-  .strip i { flex: 1; } .strip i:nth-child(1) { background: var(--red); } .strip i:nth-child(2) { background: var(--fire); }
-  .strip i:nth-child(3) { background: var(--ember); } .strip i:nth-child(4) { background: var(--gold); }
-  h1 { font-size: 15px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin: 0 0 8px; }
-  .lead { font-size: 19px; line-height: 1.4; margin: 0 0 24px; }
-  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 0 28px; }
-  .tile { background: var(--tile); padding: 10px 10px 12px; border-top: 3px solid var(--c); min-height: 92px; }
-  .tile b { display: block; font-size: 26px; font-weight: 600; color: var(--c); line-height: 1.05; }
-  .tile span { display: block; font-size: 12px; color: var(--dim); text-transform: lowercase; margin-top: 4px; }
+         font: 15px/1.6 "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+         -webkit-font-smoothing: antialiased; }
+  main { max-width: 640px; margin: 0 auto; padding: 36px 18px 56px; }
+  .cond, .word, h2, .style b, button#go, .ed, .tag { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; }
+
+  /* hero */
+  .hero { display: flex; gap: 20px; align-items: center; }
+  .hero svg { width: 108px; height: 108px; flex: none; }
+  .word { font-size: 64px; font-weight: 600; line-height: .9; letter-spacing: .03em; margin: 0; }
+  .word span { color: var(--gold); }
+  .sub { color: var(--dim); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; margin: 8px 0 0; }
+  .strings { display: grid; gap: 3px; margin: 26px 0 26px; }
+  .strings i { display: block; height: 2px; background: linear-gradient(90deg, var(--indie), var(--metal) 50%, var(--reggae)); opacity: .9; }
+  .strings i:nth-child(n+4) { height: 1px; opacity: .6; }
+  .lead { font-size: 19px; line-height: 1.45; margin: 0 0 22px; }
+
+  /* notice */
+  .notice { border: 1px solid color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 8%, var(--bg));
+            padding: 12px 14px; margin: 0 0 26px; font-size: 14px; }
+  .notice b { color: var(--warn); }
+
+  /* styles */
+  h2 { font-size: 15px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin: 0 0 10px; }
+  .styles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 26px; }
+  .style { background: var(--tile); border-top: 3px solid var(--c); padding: 12px 12px 14px; }
+  .style b { display: block; font-size: 30px; font-weight: 600; line-height: 1; color: var(--c); }
+  .style p { margin: 6px 0 10px; font-size: 13px; color: var(--dim); line-height: 1.45; }
+  .tag { display: inline-block; font-size: 13px; letter-spacing: .05em; background: var(--tile2); color: var(--fg);
+         padding: 1px 7px; margin: 0 4px 4px 0; }
+  .feats { list-style: none; padding: 0; margin: 0 0 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 14px; }
+  .feats li { padding-left: 14px; position: relative; } .feats li::before { content: ""; position: absolute; left: 0; top: .62em;
+              width: 6px; height: 6px; background: var(--gold); }
+  .demo { margin: 0 0 28px; } .demo audio { width: 100%; display: block; } .demo p { margin: 6px 0 0; color: var(--dim); font-size: 12.5px; }
+
+  /* install */
+  .install { background: var(--tile); padding: 18px 16px 16px; margin: 0 0 22px; border-left: 3px solid var(--gold); }
+  ol.steps { margin: 0 0 14px; padding-left: 20px; } ol.steps li { margin: 0 0 6px; }
+  label.opt { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--fg); margin: 0 0 14px; cursor: pointer; }
+  label.opt input { margin-top: 4px; accent-color: var(--gold); }
+  label.opt small { display: block; color: var(--dim); font-size: 12.5px; }
   p { margin: 0 0 14px; }
-  ol.steps { margin: 0 0 18px; padding-left: 20px; } ol.steps li { margin: 0 0 6px; }
-  button#go { font-size: 19px; font-weight: 600; line-height: 1; background: var(--ember); color: #160400; border: 0;
-              padding: 15px 0; width: 100%; cursor: pointer; letter-spacing: .12em; text-transform: uppercase; }
-  button#go:disabled { background: var(--tile); color: var(--dim); cursor: default; }
-  #status { margin-top: 14px; min-height: 1.6em; font-variant-numeric: tabular-nums; }
+  button#go { font-size: 20px; font-weight: 600; line-height: 1; background: var(--gold); color: #1a1205; border: 0;
+              padding: 16px 0; width: 100%; cursor: pointer; letter-spacing: .12em; text-transform: uppercase; }
+  button#go:hover:not(:disabled) { filter: brightness(1.08); }
+  button#go:disabled { background: var(--tile2); color: var(--dim); cursor: default; }
+  #status { margin: 12px 0 0; min-height: 1.6em; font-variant-numeric: tabular-nums; }
+  progress { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; margin-top: 14px; border: 0; background: var(--tile2); }
+  progress::-webkit-progress-bar { background: var(--tile2); }
+  progress::-webkit-progress-value { background: var(--gold); }
+  progress::-moz-progress-bar { background: var(--gold); }
+  pre { color: var(--dim); font-size: 11px; white-space: pre-wrap; margin: 12px 0 0; max-height: 160px; overflow: auto; }
+  pre:empty { display: none; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+  .ed { display: inline-block; padding: 9px 14px; background: var(--tile); color: var(--fg); text-decoration: none; border: 0;
+        font-size: 17px; font-weight: 600; letter-spacing: .04em; border-left: 3px solid var(--gold); cursor: pointer; }
   .small { color: var(--dim); font-size: 12.5px; }
   a { color: inherit; }
-  progress { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; margin-top: 16px; border: 0; background: var(--tile); }
-  progress::-webkit-progress-bar { background: var(--tile); }
-  progress::-webkit-progress-value { background: var(--ember); }
-  progress::-moz-progress-bar { background: var(--ember); }
-  pre { color: var(--dim); font-size: 11px; white-space: pre-wrap; margin-top: 12px; max-height: 160px; overflow: auto; }
-  pre:empty { display: none; }
   hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0 18px; }
   [hidden] { display: none !important; }
-  button.ed { color: var(--fg); border: 0; cursor: pointer; }
-  .video { margin: 0 0 26px; } .video video { width: 100%; display: block; background: #000; border: 1px solid var(--line); }
-  .video p { margin: 6px 0 0; color: var(--dim); font-size: 12.5px; }
-  .ed { display: inline-block; margin: 8px 0 0; padding: 10px 16px; background: var(--tile); text-decoration: none;
-        font-size: 17px; font-weight: 600; letter-spacing: .04em; border-left: 3px solid var(--ember); }
-  @media (max-width: 420px) { .tiles { grid-template-columns: repeat(2, 1fr); } .hero img { width: 104px; height: 104px; }
-                              .hero .name { font-size: 42px; } }
+  @media (max-width: 560px) { .styles { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr; }
+                              .word { font-size: 48px; } .hero svg { width: 80px; height: 80px; } }
 </style>
 </head>
 <body>
 <main>
-  <div class="hero"><!--LOGO--><div><p class="name">M-PYRE</p><p class="by">by History Of Sky</p></div></div>
-  <div class="strip"><i></i><i></i><i></i><i></i></div>
-  <!--STUDIO_GUIDE-->
-  <!--BANNER-->
-  <h1>Riffbox firmware for the M-VAVE FM-1</h1>
-  <p class="lead">It's not a groovebox, it's a <b class="cond" style="color: var(--ember)">RIFFBOX</b>. From idea to song: record drums, bass, rhythm and lead guitar on the FM-1's four tracks, real guitar and bass samples through amp models and the band's own cabinet IRs, a pedalboard on the screen, a fully editable kit based on realistic drum samples, and live controls for realistic guitar performances.</p>
-  <!--VIDEO-->
-  <div class="tiles">
-    <div class="tile" style="--c: var(--red)"><b>5 amps</b><span>clean, crunch, high, lead, bass</span></div>
-    <div class="tile" style="--c: var(--fire)"><b>11 fx</b><span>boost to fuzz, octave, mod, delay, reverb</span></div>
-    <div class="tile" style="--c: var(--ember)"><b>real</b><span>guitar, palm mutes, bass, drums</span></div>
-    <div class="tile" style="--c: var(--gold)"><b>palm</b><span>mutes, slides, accents per step</span></div>
+  <div class="hero">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M60 8c26 0 46 14 46 36 0 24-22 52-46 68C36 96 14 68 14 44 14 22 34 8 60 8z" fill="#1a1816" stroke="#f2b84b" stroke-width="3"/>
+      <g stroke-linecap="round">
+        <line x1="37" y1="30" x2="37" y2="86" stroke="#6fb3ff" stroke-width="3.2"/>
+        <line x1="46" y1="27" x2="46" y2="94" stroke="#6fb3ff" stroke-width="2.8"/>
+        <line x1="55" y1="25" x2="55" y2="100" stroke="#ff5a3c" stroke-width="2.4"/>
+        <line x1="64" y1="25" x2="64" y2="100" stroke="#ff5a3c" stroke-width="2"/>
+        <line x1="73" y1="27" x2="73" y2="94" stroke="#4cc26a" stroke-width="1.6"/>
+        <line x1="82" y1="30" x2="82" y2="86" stroke="#4cc26a" stroke-width="1.3"/>
+      </g>
+    </svg>
+    <div><p class="word">RIFF<span>SMITH</span></p><p class="sub">Guitar firmware for the M-VAVE FM-1</p></div>
   </div>
-  <ol class="steps">
-    <li data-t="step1"></li>
-    <li data-t="step2"></li>
-  </ol>
-  <p data-t="intro"></p>
-  <p data-t="warn"></p>
-  <p><button id="go" disabled data-t="install"></button></p>
-  <progress id="bar" max="100" value="0"></progress>
-  <p id="status"></p>
-  <pre id="log"></pre>
-  <a class="ed" href="../editor/" data-t="editor"></a>
-  <a class="ed" href="../../emu/" data-t="emu"></a>
+  <div class="strings"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <!--BANNER-->
+  <p class="lead">Turn the FM-1 into a guitar for <b style="color: var(--indie)">indie</b>, <b style="color: var(--metal)">metal</b>
+    and <b style="color: var(--reggae)">reggae</b>. Six synthesised strings, strummed, palm-muted, bent and choked live,
+    through amps and a pedalboard, on a four-track riffbox with drums and bass. No samples needed.</p>
+
+  <div class="notice" data-t-html="notice"></div>
+
+  <h2 data-t="stylesTitle"></h2>
+  <div class="styles">
+    <div class="style" style="--c: var(--indie)"><b>Indie</b>
+      <p data-t="indie"></p><span class="tag">JANGLE</span><span class="tag">INDIE CRN</span><span class="tag">DREAM ARP</span></div>
+    <div class="style" style="--c: var(--metal)"><b>Metal</b>
+      <p data-t="metal"></p><span class="tag">SYN CHUG</span><span class="tag">SYN DJENT</span><span class="tag">SYN LEAD</span></div>
+    <div class="style" style="--c: var(--reggae)"><b>Reggae</b>
+      <p data-t="reggae"></p><span class="tag">ONE DROP</span><span class="tag">DUB CHOP</span><span class="tag">SKA UP</span></div>
+  </div>
+
+  <ul class="feats">
+    <li data-t="f1"></li><li data-t="f2"></li><li data-t="f3"></li>
+    <li data-t="f4"></li><li data-t="f5"></li><li data-t="f6"></li>
+  </ul>
+
+  <!--DEMO-->
+
+  <div class="install">
+    <h2 data-t="installTitle"></h2>
+    <ol class="steps">
+      <li data-t="step1"></li>
+      <li data-t="step2"></li>
+      <li data-t="step3"></li>
+    </ol>
+    <label class="opt" id="packOpt" hidden><input type="checkbox" id="withPack">
+      <span><span data-t="packOpt"></span><small data-t="packOptNote"></small></span></label>
+    <p><button id="go" disabled data-t="install"></button></p>
+    <progress id="bar" max="100" value="0"></progress>
+    <p id="status"></p>
+    <pre id="log"></pre>
+  </div>
+
+  <div class="links">
+    <a class="ed" href="../editor/" data-t="editor"></a>
+    <a class="ed" href="../../emu/" id="emuLink" data-t="emu"></a>
+    <button id="app" class="ed" hidden data-t="appInstall"></button>
+  </div>
   <p class="small"><a href="../editor/m-pyre-editor.html" download="m-pyre-editor.html" data-t="edOffline"></a></p>
-  <p><button id="app" class="ed" hidden data-t="appInstall"></button></p>
+
   <hr>
+  <h2 data-t="safeTitle"></h2>
   <p class="small" data-t="direct"></p>
-  <p class="small" data-t="beta"></p>
-  <p class="small"><span data-t="brick"></span>
-    <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener">FM-1-transporter</a></p>
+  <p class="small" data-t="rescue"></p>
   <p class="small" data-t="back"></p>
   <p class="small"><a href="https://www.m-vave.com/download" target="_blank" rel="noopener">www.m-vave.com/download</a></p>
-  <p class="small">M-PYRE is made by History Of Sky. It is based on <a href="https://github.com/isod89/sloop-fm1" target="_blank" rel="noopener">SLOOP</a> by isod89
-    and on <a href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener">Felucca</a> by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>;
-    the HYBRID synth voice is from Clipper by 3dSam.
-    Hold OCT− alone while switching on for USB rescue.<br>
-    Guitar and bass samples, cabinet IRs and artwork: © History Of Sky, CC BY 4.0. Drum samples: CC0 1.0. Piano, vibes and strings: Versilian Studios VSCO-2 CE and VCSL (CC0 1.0).
-    Font: Barlow Condensed (Jeremy Tribby, SIL OFL 1.1).<br>
-    M-VAVE and FM-1 are trademarks of their respective owners; M-PYRE is not affiliated with them.<br>
+  <p class="small"><span data-t="brick"></span>
+    <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener">FM-1-transporter</a></p>
+  <p class="small" data-t="risk"></p>
+
+  <hr>
+  <p class="small">Riffsmith is a fork of <a href="https://github.com/HistoryOfSky/m-pyre" target="_blank" rel="noopener">M-PYRE</a>
+    by History Of Sky, which is based on <a href="https://github.com/isod89/sloop-fm1" target="_blank" rel="noopener">SLOOP</a> by isod89
+    and on <a href="https://github.com/hugelton/Felucca" target="_blank" rel="noopener">Felucca</a> by Leo Kuroshita (@kurogedelic),
+    <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>; the HYBRID voice is from Clipper by 3dSam.
+    Riffsmith adds the synthesised GUITAR engine, the JANGL and SKANK amps and its sounds.<br>
+    M-PYRE's optional sound pack (guitar, palm mute and bass samples): © History Of Sky, CC BY 4.0, unchanged. Drum, piano, vibes and
+    strings samples: Versilian Studios VSCO-2 CE and VCSL (CC0 1.0). Font: Barlow Condensed (Jeremy Tribby, SIL OFL 1.1).<br>
+    M-VAVE and FM-1 are trademarks of their respective owners; Riffsmith is not affiliated with M-VAVE, History Of Sky or Hügelton Instruments.<br>
     <span data-t="license"></span> <a href="/*REPO*/" target="_blank" rel="noopener">/*REPO_SHORT*/</a></p>
 </main>
 <script type="module">
@@ -106,25 +169,42 @@
 const $ = (id) => document.getElementById(id);
 const TEXT = {
   en: {
-    step1: "Install the firmware here (about two minutes).",
-    step2: "The sound pack (the guitars, palm mutes and bass) is written right after the firmware, when the FM-1 does not have it yet. The drums are in the firmware.",
-    intro: "Connect the FM-1 by USB. (Works in Chrome or Edge.)",
-    warn: "Do not unplug the USB cable while writing.",
-    install: "Install M-PYRE", other: "",
-    editor: "Editor (after installing: the sound pack, sounds, sequences, backups)",
-    emu: "No FM-1 at hand? Try M-PYRE in your browser (emulator)",
-    edOffline: "Download the editor to use it without internet on a computer (open the file in Chrome or Edge)",
-    appInstall: "Install the app (the editor and the installer offline, Android too)",
-    direct: "Connect the USB cable directly to the computer. No probe or Transporter is needed.",
-    brick: "If an install fails and the FM-1 no longer starts, recovering it needs a Transporter:",
-    beta: "M-PYRE is custom firmware, made by a band in its spare time. History Of Sky accepts no responsibility if your FM-1 is damaged or misbehaves because of it. Use it at your own risk.",
-    nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
+    notice: "<b>Early development.</b> Riffsmith has been built and tested in the FM-1 simulator only, not yet on a real FM-1. Install it only if you are ready to put the official firmware back with M-VAVE's updater (see below), and back up your projects and samples first.",
+    stylesTitle: "Three styles, ten guitars",
+    indie: "A chiming class-A amp, chorus and a dotted-eighth delay; strums that ring.",
+    metal: "Tight high-gain amps, palm-muted chugs and power chords, a singing lead.",
+    reggae: "A thin, clean SKANK amp; chops choked on the key-up; a dub delay.",
+    f1: "Six modelled strings: pick position, brightness, sustain",
+    f2: "Strum, chords, bend, vibrato and palm mute on the knobs",
+    f3: "Amps: CLEAN CRNCH HIGH LEAD BASS JANGL SKANK",
+    f4: "Pedals, wah, whammy, chorus, delay, reverb",
+    f5: "Four tracks, step sequencer, song mode, drums and bass",
+    f6: "USB MIDI and USB audio: record it straight into your DAW",
+    installTitle: "Install",
+    step1: "Charge the FM-1 and connect it straight to a computer with a USB data cable (no hub).",
+    step2: "Open this page in Chrome or Edge, press Install and allow MIDI access.",
+    step3: "Wait about two minutes for \"Done\". The FM-1 restarts on Riffsmith.",
+    packOpt: "Also write M-PYRE's sampled guitars and bass into the sample slots",
+    packOptNote: "Optional: Riffsmith's guitars are synthesised. This replaces whatever is in USR1–USR4 (History Of Sky's recordings, CC BY 4.0).",
+    install: "Install Riffsmith",
+    nobuild: "The first Riffsmith firmware build is coming soon: this page goes live with it.",
+    editor: "Editor", emu: "Try it in the browser",
+    edOffline: "Download the editor for use without internet (open the file in Chrome or Edge)",
+    appInstall: "Install as an app",
+    safeTitle: "Safety and going back",
+    direct: "Connect the USB cable directly to the computer and keep the page open while it writes. If the cable comes out, plug it back in and press Install again: the FM-1 stays in update mode until the install is finished.",
+    rescue: "If the FM-1 does not start Riffsmith: hold OCT− alone while switching it on (USB rescue), then install again.",
+    back: "To return to the official firmware, use M-VAVE's own updater, M-UPGRADE (Downloads → PC Software → M-UPGRADE), with the official firmware (PC Firmware → FM-1 V15). If it does not find the FM-1, close every other app and browser tab that uses MIDI.",
+    brick: "If an install fails and the FM-1 no longer starts at all, recovering it needs a Transporter:",
+    risk: "Riffsmith is free custom firmware with no warranty. Its makers accept no responsibility if your FM-1 is damaged or misbehaves because of it. Use it at your own risk.",
+    nomidi: "This browser cannot install firmware. Open the page in Chrome or Edge on a computer.", loadfail: "Could not load the firmware: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
-    reboot: "Restarting", done: "Done. M-PYRE and its sound pack are on the FM-1.", stopped: "Stopped. Replug the USB cable and press Install again.",
-    packWait: "Waiting for M-PYRE to start", packWrite: "Writing the sound pack ", packHave: "The sound pack is already on the FM-1. ",
-    packAsk: "The FM-1's sample slots USR1 to USR4 hold other samples ({names}). Replace them with M-PYRE's sound pack (guitars, palm mutes, bass)? Without it the guitar and bass sounds are silent.",
-    packKept: "Done. Your samples were kept: install the sound pack later in the editor (samples > Install sound pack).",
-    packFail: "M-PYRE is installed, but the sound pack could not be written: open the editor and press Install sound pack (samples page). ",
+    reboot: "Restarting", done: "Done. Riffsmith is on the FM-1.", doneWithPack: "Done. Riffsmith and the sampled guitars are on the FM-1.",
+    stopped: "Stopped. Replug the USB cable and press Install again.",
+    packWait: "Waiting for Riffsmith to start", packWrite: "Writing the sampled guitars ", packHave: "The sampled guitars are already on the FM-1. ",
+    packAsk: "The FM-1's sample slots USR1 to USR4 hold other samples ({names}). Replace them with M-PYRE's sampled guitars and bass?",
+    packKept: "Done. Your samples were kept.",
+    packFail: "Riffsmith is installed, but the sampled guitars could not be written (they are optional): ",
     error: "Error: ",
     denied: "MIDI (SysEx) access was not allowed. Allow MIDI in the site settings (address bar) and press Install again.",
     notfound: "FM-1 not found. Check the USB cable (a data cable), close other apps that use MIDI, and press Install again.",
@@ -134,10 +214,9 @@ const TEXT = {
     noreturn: "The FM-1 did not come back. Power-cycle it.",
     mismatch: "Written, but the FM-1 reports another version: ",
     foreign: "The FM-1 is in the update mode of another firmware. Finish that update with its own updater (M-UPGRADE), then press Install again: ",
-    badpkg: "The file to install is damaged. Reload the page.",
+    badpkg: "The firmware file is damaged. Reload the page.",
     leave: "Writing. Do not close the page.",
     license: "GPL-3.0, no warranty. Source:",
-    back: "To return to the official firmware, use M-VAVE's own updater, M-UPGRADE (Downloads → PC Software → M-UPGRADE), with the official firmware from M-VAVE (PC Firmware → FM-1 V15). If it does not find the FM-1, close every other app and browser tab that uses MIDI.",
   },
 };
 let lang = "en";
@@ -146,6 +225,7 @@ let lastKey = null, lastArg = "";
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
+  document.querySelectorAll("[data-t-html]").forEach((e) => { e.innerHTML = t(e.dataset.tHtml); });
   if (lastKey) $("status").textContent = t(lastKey) + lastArg;
 }
 applyLang();
@@ -170,19 +250,21 @@ const say = (txt) => { lastKey = null; $("status").textContent = txt; };
 const log = (t) => { $("log").textContent += t + "\n"; };
 let image = null, pack = null;
 const meta = /*META*/;
+if (!meta.emu) $("emuLink").hidden = true;
 
 let writing = false;
 const lockAll = (on) => {
   writing = on;
   $("go").disabled = on || !image;
+  $("withPack").disabled = on;
 };
 window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault(); e.returnValue = t("leave"); } });
 
 (async () => {
+  if (!meta.pkg) { sayK("nobuild"); return; }      /* (make_site.py --preview: the page before the first build) */
   if (!navigator.requestMIDIAccess) { sayK("nomidi"); return; }
   try {
-    /* (2.7) never the browser's old copy: a new build keeps the file's name (m-pyre-1.0.fwsc), and a copy kept from the
-       build before is "damaged" here. no-cache asks the server first; a mismatch is fetched once more, bypassing the cache */
+    /* never the browser's old copy: no-cache asks the server first; a mismatch is fetched once more, bypassing the cache */
     const sha = async (pkg) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", pkg))].map((b) => b.toString(16).padStart(2, "0")).join("");
     const get = async (cache) => {
       const r = await fetch(meta.pkg, { cache });
@@ -198,16 +280,16 @@ window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault
       if (h !== meta.sha256) { sayK("badpkg"); log(`sha256 ${h}, expected ${meta.sha256}`); return; }
     }
     image = logicalImage(pkg);
-    if (meta.pack) {                                   /* M-PYRE: the sound pack, written after the firmware */
+    if (meta.pack) {                                   /* M-PYRE's sound pack: optional here (the GUITAR engine needs no samples) */
       try {
         const r = await fetch(meta.pack, { cache: "no-cache" });
         if (r.ok) {
           const b = new Uint8Array(await r.arrayBuffer());
-          if (!check || (await sha(b)) === meta.packSha256) pack = b;
+          if (!check || (await sha(b)) === meta.packSha256) { pack = b; $("packOpt").hidden = false; }
         }
       } catch (e) { log(`sound pack: ${e.message}`); }
     }
-    say(`M-PYRE ${meta.version}`);
+    say(`Riffsmith ${meta.version}`);
     lockAll(writing);
   } catch (e) { sayK("loadfail", e.message); }
 })();
@@ -224,9 +306,9 @@ const step = (k, a) => {
 };
 
 /*PACK-BEGIN*/
-/* M-PYRE: the sound pack into USR1..USR4 right after the firmware, through the editor's protocol (EP, editor.html):
-   M-PYRE is found once it has started; slots that already hold the pack are left alone; other samples there are
-   replaced only when the player agrees. -> "done", "packKept", or throws */
+/* the sound pack into USR1..USR4 right after the firmware, through the editor's protocol (EP, editor.html): the
+   firmware is found once it has started; slots that already hold the pack are left alone; other samples there are
+   replaced only when the player agrees. -> "doneWithPack", "packKept", "packHave", or throws */
 const SLOT_NAME = (h) => String.fromCharCode(...h.subarray(8, 16)).replace(/\0.*$/, "");
 async function packConnect(midi) {
   for (let t0 = Date.now(); Date.now() - t0 < 30000;) {
@@ -236,14 +318,14 @@ async function packConnect(midi) {
       if (pr.input.open) await pr.input.open().catch(() => {});
       try {
         const info = EP.parse[EP.CMD.INFO](await l.request(EP.req.info(), { timeout: 500, retries: 2, quiet: true }));
-        if (/M-PYRE/i.test(info.version || "")) return { link: l, input: pr.input };
+        if (/RIFFSMITH|M-PYRE/i.test(info.version || "")) return { link: l, input: pr.input };
       } catch (e) { /* not yet */ }
       l.close();
       pr.input.onmidimessage = null;
     }
     await new Promise((r) => setTimeout(r, 1000));
   }
-  throw new Error("M-PYRE did not answer");
+  throw new Error("Riffsmith did not answer");
 }
 async function installPack(midi) {
   sayK("packWait");
@@ -279,7 +361,7 @@ async function installPack(midi) {
       if (r.rc) throw new Error(`USR${k + 1} end rc ${r.rc}`);
       log(`sound pack: USR${k + 1} written`);
     }
-    return "done";
+    return "doneWithPack";
   } finally {
     link.close();
     input.onmidimessage = null;
@@ -287,12 +369,12 @@ async function installPack(midi) {
 }
 /*PACK-END*/
 async function afterInstall(midi) {
-  if (!pack) { sayK("done"); return; }
+  if (!pack || !$("withPack").checked) { sayK("done"); return; }
   $("bar").value = 0;
   try {
     const k = await installPack(midi);
     $("bar").value = 100;
-    if (k === "packHave") sayK("done"); else sayK(k);
+    sayK(k === "packHave" ? "doneWithPack" : k);
   } catch (e) { sayK("packFail", e.message); log(String(e && e.stack || e)); }
 }
 const failed = (e) => {
@@ -322,7 +404,7 @@ $("go").addEventListener("click", async () => {
 });
 
 /* Returning to the official firmware is done with M-VAVE's own updater (M-UPGRADE): the in-browser
-   revert was removed because it is not reliable on every system. The note under "stockTitle" points there. */
+   revert was removed because it is not reliable on every system. */
 </script>
 </body>
 </html>

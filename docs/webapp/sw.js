@@ -5,9 +5,9 @@
 // https, so Web MIDI asks as usual (a downloaded file on Android opens as content://, where Chrome refuses MIDI).
 // Online the network always wins (the page as published, never an old one); the copy is only the fallback.
 // A new site (any file changed) is a new sw.js: the new copy replaces the old one.
-const STAMP = "1.0.3-ff4df93c6ff4";                          // version + a hash of the files
-const CACHE = "m-pyre-site-" + STAMP;
-const FILES = ["../firmware/m-pyre-1.0.3.fwsc", "../firmware/soundpack.bin", "editor/", "editor/FUKIAI-LICENSE.txt", "editor/fukiai.ttf", "editor/preview-worklet.js", "editor/preview.js", "editor/sloop-preview.wasm", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "installer/", "m-pyre.webmanifest"];                          // relative to this file
+const STAMP = "0.1-dev-aecc12fddaad";                          // version + a hash of the files
+const CACHE = "riffsmith-site-" + STAMP;
+const FILES = ["../firmware/soundpack.bin", "editor/", "editor/FUKIAI-LICENSE.txt", "editor/fukiai.ttf", "editor/preview-worklet.js", "editor/preview.js", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "installer/", "riffsmith.webmanifest"];                          // relative to this file
 const KEEP = new Set(FILES.map((f) => new URL(f, self.location).href));
 
 const key = (url) => {                              // the copy's name of a request: no query, index.html = the folder
@@ -29,7 +29,7 @@ self.addEventListener("install", (e) => {
 self.addEventListener("activate", (e) => {
   e.waitUntil((async () => {
     for (const k of await caches.keys())
-      if ((k.startsWith("m-pyre-site-") || k.startsWith("sloop-site-")) && k !== CACHE) await caches.delete(k);
+      if ((k.startsWith("riffsmith-site-") || k.startsWith("m-pyre-site-") || k.startsWith("sloop-site-")) && k !== CACHE) await caches.delete(k);
     await self.clients.claim();
   })());
 });

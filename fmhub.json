@@ -1,12 +1,9 @@
 {
-  "what": "A riffbox for rock and metal: real guitar, bass and drum samples, an amp engine with cabinet IRs, pedals and guitar effects, plus all of SLOOP's synth engines. Bend strings, play whammy, wah and palm mutes live, record on the 4-track and turn riffs into songs.",
-  "author": "History Of Sky",
+  "what": "A guitar firmware for indie, metal and reggae: six synthesised strings (no samples needed) strummed, palm-muted, bent and choked live, through JANGL, SKANK and high-gain amps, pedals and effects, on M-PYRE's four-track riffbox with drums and bass. USB MIDI and audio.",
+  "author": "pedronogueiranunes",
   "kinds": [
     "groove"
   ],
-  "play": "https://historyofsky.github.io/m-pyre/emu/",
-  "editor": "https://historyofsky.github.io/m-pyre/webapp/editor/",
-  "cheat": "https://historyofsky.github.io/m-pyre/cheatsheet/",
-  "image": "assets/hub/card.png",
-  "color": "#FF7A1A"
+  "editor": "https://pedronogueiranunes.github.io/riffsmith-fm1/webapp/editor/",
+  "color": "#F2B84B"
 }

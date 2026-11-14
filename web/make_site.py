@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 # Copyright (C) 2026 History Of Sky (M-PYRE)
+# Modified for Riffsmith, 2026: the Riffsmith site, --preview, the demo, the optional sound pack
 """Make the site (GitHub Pages):
 
   index.html                  redirect to the installer
@@ -18,6 +19,8 @@
   src/                        not touched
 
   web/make_site.py build/felucca-X.Y.fwsc X.Y OUT_DIR [--beta]
+  web/make_site.py --preview X.Y OUT_DIR      (Riffsmith: the site before the first firmware build: no package,
+                                               the Install button says the build is coming)
   (--beta: web/beta_banner.html at the top of the installer: the beta channel, docs/beta)
 
 The package identity (M-PYRE: FM-1_123) is read from the package; the device reports it
@@ -34,8 +37,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 # M-PYRE: where the site and the source live (GitHub Pages of the repository); MPYRE_USER / MPYRE_REPO override them
-USER = os.environ.get("MPYRE_USER", "historyofsky")
-REPO = os.environ.get("MPYRE_REPO", "m-pyre")
+USER = os.environ.get("RIFFSMITH_USER", "pedronogueiranunes")
+REPO = os.environ.get("RIFFSMITH_REPO", "riffsmith-fm1")
 ONLINE = f"https://{USER}.github.io/{REPO}/"                     # (the offline editor's links)
 SOURCE = f"https://github.com/{USER}/{REPO}"
 
@@ -69,16 +72,18 @@ def app_files(out, version, fw_name):
     for f in ICONS:
         shutil.copy(HERE / f, app / f)
     manifest = {
-        "name": "M-PYRE", "short_name": "M-PYRE", "id": "editor/", "start_url": "editor/", "scope": "./",
-        "display": "standalone", "background_color": "#080000", "theme_color": "#080000",
-        "description": "M-PYRE, the riffbox firmware for the M-VAVE FM-1: the editor and the installer, also without internet",
+        "name": "Riffsmith", "short_name": "Riffsmith", "id": "editor/", "start_url": "editor/", "scope": "./",
+        "display": "standalone", "background_color": "#0d0c0b", "theme_color": "#0d0c0b",
+        "description": "Riffsmith, the guitar firmware for the M-VAVE FM-1: the editor and the installer, also without internet",
         "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
                   {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
                   {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}],
     }
-    (app / "m-pyre.webmanifest").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+    (app / "riffsmith.webmanifest").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
     keep = {"installer/": app / "installer" / "index.html", "editor/": app / "editor" / "index.html",
-            "../firmware/" + fw_name: out / "firmware" / fw_name, "m-pyre.webmanifest": app / "m-pyre.webmanifest"}
+            "riffsmith.webmanifest": app / "riffsmith.webmanifest"}
+    if fw_name:
+        keep["../firmware/" + fw_name] = out / "firmware" / fw_name
     if (out / "firmware" / "soundpack.bin").exists():
         keep["../firmware/soundpack.bin"] = out / "firmware" / "soundpack.bin"   # (M-PYRE: offline too)
     for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
@@ -113,23 +118,26 @@ def product_of(raw):
 
 
 def main(pkg, version, out):
-    pkg, out = Path(pkg), Path(out)
-    raw = pkg.read_bytes()
-    product = product_of(raw)
-    if not re.fullmatch(r"FM-1_(9\d\d|123)", product):
-        raise SystemExit(f"{pkg}: identity {product!r} is not a Felucca / M-PYRE package (FM-1_9xx, FM-1_123)")
-    if b"FELUCCA-LOADER-1" not in raw:              # marker of firmware/loader
+    out = Path(out)
+    preview = pkg is None                           # Riffsmith: the site before the first build
+    raw = b"" if preview else Path(pkg).read_bytes()
+    product = None if preview else product_of(raw)
+    if not preview and not re.fullmatch(r"FM-1_\d\d\d", product):
+        raise SystemExit(f"{pkg}: identity {product!r} is not an FM-1 package identity (FM-1_NNN)")
+    if not preview and b"FELUCCA-LOADER-1" not in raw:   # marker of firmware/loader
         raise SystemExit(f"{pkg}: no Felucca update loader in it")
     html = (HERE / "index_pkg.html").read_text(encoding="utf-8")
     lib = strip_module((HERE / "fm1pkg.js").read_text(encoding="utf-8")) + "\n" + \
         strip_module((HERE / "fm1ota.js").read_text(encoding="utf-8"))
-    name = f"m-pyre-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
+    name = None if preview else f"riffsmith-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
     # M-PYRE: the sound pack next to the firmware: the installer writes it right after (USR1..USR4)
     pack = HERE.parent / "build" / "mpyre" / "soundpack.bin"
     pack_meta = {"pack": "../../firmware/soundpack.bin", "packSha256": hashlib.sha256(pack.read_bytes()).hexdigest()} \
         if pack.exists() else {}
-    meta = json.dumps({"version": version, "product": product, "pkg": "../../firmware/" + name,
-                       "sha256": hashlib.sha256(raw).hexdigest(), **pack_meta})   # the page checks the download against it
+    emu_html = HERE.parent / "build" / "emu" / "m-pyre-emulator.html"
+    meta = json.dumps({"version": version, "product": product, "pkg": None if preview else "../../firmware/" + name,
+                       "sha256": None if preview else hashlib.sha256(raw).hexdigest(), "emu": emu_html.exists(),
+                       **pack_meta})   # the page checks the download against it
     ed_src = (HERE / "editor.html").read_text(encoding="utf-8")
     a, b = ed_src.find("/*PROTO-BEGIN*/"), ed_src.find("/*PROTO-END*/")
     if a < 0 or b < a:
@@ -163,7 +171,7 @@ def main(pkg, version, out):
         banner = notes.read_text(encoding="utf-8") if notes.exists() else "<p><b>BETA</b></p>"
     html = html.replace("<!--BANNER-->", banner)
     media = HERE.parent / "assets" / "mpyre" / "video"            # M-PYRE: the promo video, next to the site (not kept offline)
-    if (media / "m-pyre-promo.mp4").exists():
+    if "<!--VIDEO-->" in html and (media / "m-pyre-promo.mp4").exists():   # (Riffsmith's page has no video slot)
         (out / "media").mkdir(parents=True, exist_ok=True)
         for f in ("m-pyre-promo.mp4", "m-pyre-promo-poster.jpg"):
             shutil.copy(media / f, out / "media" / f)
@@ -176,16 +184,26 @@ def main(pkg, version, out):
                             '<a href="https://open.spotify.com/artist/4ehdjRy2ETpUSkIbtuEG3S" target="_blank" rel="noopener">Spotify</a> · '
                             '<a href="https://www.instagram.com/historyofsky/" target="_blank" rel="noopener">Instagram</a></p></div>')
     html = html.replace("<!--VIDEO-->", "")
-    for old in list(fw.glob("felucca-*.fwsc")) + list(fw.glob("sloop-*.fwsc")) + list(fw.glob("m-pyre-*.fwsc")):   # one package: the current one
+    for old in list(fw.glob("felucca-*.fwsc")) + list(fw.glob("sloop-*.fwsc")) + list(fw.glob("m-pyre-*.fwsc")) + \
+            list(fw.glob("riffsmith-*.fwsc")):   # one package: the current one
         old.unlink()
-    shutil.copy(pkg, fw / name)
+    if not preview:
+        shutil.copy(pkg, fw / name)
+    demo = HERE.parent / "assets" / "riffsmith" / "riffsmith-fm1-demo.mp3"   # Riffsmith: what it sounds like
+    if demo.exists():
+        (out / "media").mkdir(parents=True, exist_ok=True)
+        shutil.copy(demo, out / "media" / demo.name)
+        html = html.replace("<!--DEMO-->", '<div class="demo"><audio controls preload="none" src="../../media/' + demo.name +
+                            '"></audio><p>Indie, metal, reggae: the GUITAR engine with bass and drums, rendered by the '
+                            'firmware\'s own DSP in the simulator.</p></div>')
+    html = html.replace("<!--DEMO-->", "")
     if pack.exists():
         shutil.copy(pack, fw / "soundpack.bin")
     ed_html = (HERE / "editor.html").read_text(encoding="utf-8")
     if font.exists():                              # M-PYRE: the editor's face too, inline (it also runs offline)
         ed_html = ed_html.replace('/*FONT*/local("Barlow Condensed SemiBold")',
                                   'url(data:font/ttf;base64,' + base64.b64encode(font.read_bytes()).decode() + ') format("truetype")')
-    dl = f'download="m-pyre-editor-{re.sub(r"[^A-Za-z0-9.-]", "-", version)}.html"'
+    dl = f'download="riffsmith-editor-{re.sub(r"[^A-Za-z0-9.-]", "-", version)}.html"'
     if ed_html.count('download="m-pyre-editor.html"') != 1 or html.count('download="m-pyre-editor.html"') != 1:
         raise SystemExit('editor.html and index_pkg.html must link download="m-pyre-editor.html" once; update make_site.py')
     (ed / "index.html").write_text(ed_html.replace('download="m-pyre-editor.html"', dl), encoding="utf-8")
@@ -218,14 +236,18 @@ def main(pkg, version, out):
             + emu.read_text(encoding="utf-8") + '\n</body>\n</html>\n', encoding="utf-8")
     app_files(out, version, name)
     (out / "index.html").write_text(
-        '<!doctype html><meta charset="utf-8"><title>M-PYRE</title>'
+        '<!doctype html><meta charset="utf-8"><title>Riffsmith</title>'
         '<meta http-equiv="refresh" content="0; url=webapp/installer/">'
-        '<a href="webapp/installer/">M-PYRE installer</a>\n', encoding="utf-8")
-    print(f"site: {out}: webapp/installer ({len(html)} B), webapp/editor, firmware/{name} ({len(raw)} B, {product})")
+        '<a href="webapp/installer/">Riffsmith installer</a>\n', encoding="utf-8")
+    print(f"site: {out}: webapp/installer ({len(html)} B), webapp/editor, " +
+          ("no firmware (--preview)" if preview else f"firmware/{name} ({len(raw)} B, {product})"))
 
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if a not in ("--studio-guide", "--beta")]
-    if len(args) != 3:
+    if len(args) == 3 and args[0] == "--preview":
+        main(None, args[1], args[2])
+    elif len(args) == 3:
+        main(*args)
+    else:
         sys.exit(__doc__)
-    main(*args)
