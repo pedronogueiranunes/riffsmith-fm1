@@ -1,3 +1,16 @@
+# Riffsmith changes (on top of M-PYRE 1.0.3)
+
+## Unreleased
+- GUITAR: a synthesised guitar engine in PHYS's slot (`firmware/src/eng_guitar.c`), ten factory sounds, first in
+  PRESETS > GTR. A note retriggered on GUITAR restarts its string (`voice.c`: not the kept phases of the other engines).
+- Amps: JANGL (6) and SKANK (7), after BASS (`tools/gen_mpyre_amp.py`, `amp.c`, `params.c`); JANGL double-tracked
+  (`fx.c part_doubled`); the core split's cost table knows them and GUITAR (`fx.c unit_w`). Projects that stored the
+  amp numbers 6 or 7 (M-PYRE's old bass amps, before 1.0) now open them as JANGL / SKANK.
+- `tools/prep_riffsmith_kit.py`: the drum kit from the CC0 samples in this tree (M-PYRE's are not public).
+- `tests/riffsmith_demos.py`: an indie, a metal and a reggae render through the firmware DSP.
+
+---
+
 # Changelog
 
 ## M-PYRE 1.0.3

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
  * Modified for M-PYRE by History Of Sky, 2026 (CHANGELOG.md) */
+/* Modified for Riffsmith, 2026 (CHANGELOG.md) */
 /* Voice allocation, envelopes, LFO and per-track rendering. Runs in the
  * audio ISR.
  *
@@ -329,7 +330,8 @@ static void voice_start(track_t *t, voice_t *v, uint32_t note, uint32_t vel, int
         v->env_out = 0;
     }                                                   /* sounding: the attack starts from the current level */
     e->note_on(t, v);
-    if (sounding && !eng_sampled(e)) {                 /* retrigger / steal: keep phases and filter states */
+    if (sounding && !eng_sampled(e) && e != &ENG_GUITAR) {   /* retrigger / steal: keep phases and filter states
+                                                        * (RIFFSMITH: not GUITAR's: a new pick restarts its string) */
         v->ph[0] = ph0;                                 /* (resetting them clicks) */
         v->ph[1] = ph1;
         v->ph[2] = ph2;

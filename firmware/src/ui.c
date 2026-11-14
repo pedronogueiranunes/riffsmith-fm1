@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
  * Modified for M-PYRE by History Of Sky, 2026 (CHANGELOG.md) */
+/* Modified for Riffsmith, 2026 (CHANGELOG.md) */
 /* Felucca user interface. Four columns map to KNOB 1..4. Rendering is lazy:
  * every element remembers what it last drew and is redrawn only on change. */
 #ifndef MPYRE_SOURCE   /* the source of this firmware (the ABOUT page; -DMPYRE_SOURCE=... overrides) */
@@ -693,6 +694,11 @@ UI_SMALL static void select_engine(uint32_t e)
 enum { BK_GTR, BK_BASS, BK_KEYS, BK_STR, BK_SYN, BK_HYB, BK_MALL, BK_RETR };
 static const char *const BANK_KIND[] = {"GTR", "BASS", "KEYS", "STR", "SYN", "HYBR", "MALL", "RETR"};
 static const struct { uint8_t kind, e; const char *name; } BANK[] = {
+    /* RIFFSMITH: the synthesised guitars first (GUITAR, in PHYS's slot: no sound pack needed) */
+    {BK_GTR, ENGI_PHYS, "JANGLE"}, {BK_GTR, ENGI_PHYS, "INDIE CRN"}, {BK_GTR, ENGI_PHYS, "DREAM ARP"},
+    {BK_GTR, ENGI_PHYS, "SYN CHUG"}, {BK_GTR, ENGI_PHYS, "SYN DJENT"}, {BK_GTR, ENGI_PHYS, "SYN LEAD"},
+    {BK_GTR, ENGI_PHYS, "ONE DROP"}, {BK_GTR, ENGI_PHYS, "DUB CHOP"}, {BK_GTR, ENGI_PHYS, "SKA UP"},
+    {BK_GTR, ENGI_PHYS, "STRING DI"},
     {BK_GTR, 4, "CLEAN GTR"}, {BK_GTR, 4, "CRUNCH GTR"}, {BK_GTR, 4, "HI-GAIN"}, {BK_GTR, 4, "DJENT GTR"},
     {BK_GTR, 4, "LEAD GTR"}, {BK_GTR, 4, "PALM MUTE"}, {BK_GTR, 4, "DI GUITAR"}, {BK_BASS, 4, "PICK BASS"},
     {BK_BASS, 4, "DRIVE BASS"}, {BK_BASS, 4, "HEAVY BASS"}, {BK_BASS, 0, "MONO BASS"}, {BK_BASS, 0, "SUB BASS"},

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
  * Modified for M-PYRE by History Of Sky, 2026 (CHANGELOG.md) */
+/* Modified for Riffsmith, 2026 (CHANGELOG.md) */
 /* Engine table: order = PRESETS browsing order (and the engine numbers of the editor protocol). */
 #include "dsp.c"
 /* SLOOP 2.5: the big per-part state of GRAIN, FM6 and PHYS shares one arena per synth part (a part plays one
@@ -56,7 +57,8 @@ static const engine_t ENG_NONE = {
 };
 #define ENG_FORMANT ENG_NONE
 #define ENG_GRAIN ENG_NONE
-#define ENG_PHYS ENG_NONE
+#include "eng_guitar.c"         /* RIFFSMITH: GUITAR, the synthesised guitar, in PHYS's slot (ENGI_PHYS) */
+#define ENG_PHYS ENG_GUITAR
 #endif
 
 typedef union {

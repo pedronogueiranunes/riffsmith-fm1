@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
  * Modified for M-PYRE by History Of Sky, 2026 (CHANGELOG.md) */
+/* Modified for Riffsmith, 2026 (CHANGELOG.md) */
 /* Effects: per-track DIST insert, then sends into three shared buses (chorus, tempo delay, reverb).
  * Stereo dry mix; the chorus and the reverb come back in stereo, the delay in the middle. */
 #define DLY_LEN 65536u           /* 1.49 s: 1/4 down to 41 BPM, 1/8 dotted down to 31, 1/4 dotted down to 61 (clamped below) */
@@ -615,7 +616,7 @@ static void mix_part(track_t *t, uint32_t n, mixacc_t *mx, int32_t *b)   /* into
 typedef struct { int32_t buf[DBL_N]; uint32_t w, ph, on; } dbl_t;   /* (on: the delay holds this part's sound) */
 static dbl_t dbl_st[NPART] __attribute__((section(".pool")));
 uint8_t dbl_off;                                        /* menu SEQ > GTR DOUBLE: 1 = OFF, every guitar in the middle (panel.c) */
-static int part_doubled(const track_t *t) { return !dbl_off && !is_drum(t) && t->p[P_AMP] >= 1 && t->p[P_AMP] <= 3; }
+static int part_doubled(const track_t *t) { return !dbl_off && !is_drum(t) && (t->p[P_AMP] >= 1 && t->p[P_AMP] <= 3 || t->p[P_AMP] == 6); }   /* (RIFFSMITH: JANGLE too) */
 
 static void mix_part_run(track_t *t, uint32_t n, mixacc_t *mx, int32_t *b)
 {
@@ -883,8 +884,8 @@ static void cpu1_units_job(uint32_t arg)                /* core 1's job: the uni
  * measured alone): a part, more with samples (read from the flash), plus its amp; the drums; core 0's own (the buses) */
 static uint32_t unit_w(const track_t *t)
 {
-    static const uint8_t AW[8] = {0, 21, 24, 22, 23, 17, 17, 17};   /* OFF CLEAN CRNCH HIGH LEAD BASS (BASS BASS) */
-    return (ENGINES[t->engine] == &ENG_SAMPLE ? 16u : 8u) + AW[t->p[P_AMP] & 7];
+    static const uint8_t AW[8] = {0, 21, 24, 22, 23, 17, 23, 21};   /* OFF CLEAN CRNCH HIGH LEAD BASS JANGLE SKANK */
+    return (ENGINES[t->engine] == &ENG_SAMPLE ? 16u : ENGINES[t->engine] == &ENG_GUITAR ? 12u : 8u) + AW[t->p[P_AMP] & 7];
 }
 /* the units core 1 renders this block: the split that loads the two cores most evenly (M-PYRE; SLOOP: always the last
  * part and the drums - two amps then share core 0), cpu1_units when set (the menu, the tests), less the parts that

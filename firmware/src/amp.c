@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
+/* Modified for Riffsmith, 2026 (CHANGELOG.md) */
 /* Copyright (C) 2026 History Of Sky (M-PYRE) */
 /* M-PYRE: the amp of a synth part (fx.c mix_part_run, after the drive pedal P_DIST): models of a clean, a crunch, a
  * high-gain and a lead amp (tools/gen_mpyre_amp.py: build/gen/mpyre_amp.h), each
@@ -279,6 +280,9 @@ static void track_bass(track_t *t, amp_st_t *a, int32_t *b, uint32_t n)
     }
 }
 
+/* RIFFSMITH: P_AMP 1..4 CLEAN CRNCH HIGH LEAD, 5 BASS (track_bass), 6 JANGLE, 7 SKANK -> AMP_MODELS[] */
+static int32_t amp_model_of(int32_t type) { return type >= 6 ? type - 2 : type - 1; }
+
 static void track_amp(track_t *t, int32_t *b, uint32_t n)
 {
     uint32_t k = (uint32_t)(t - trk) % NPART, i, j;
@@ -286,8 +290,8 @@ static void track_amp(track_t *t, int32_t *b, uint32_t n)
     int32_t type = t->p[P_AMP], cab = t->p[P_CAB];
     const amp_model_t *m;
     const int16_t *h;
-    int32_t g1, g2, b0, kb[4], mk, gmk = 4096;
-    if (type < 1 || type > AMP_NMODELS + 3) {        /* OFF: nothing */
+    int32_t g1, g2, b0, kb[4], mk, gmk = 4096, mi, drv;
+    if (type < 1 || type > 7) {                      /* OFF: nothing */
         a->on = 0;
         return;
     }
@@ -296,26 +300,28 @@ static void track_amp(track_t *t, int32_t *b, uint32_t n)
         a->on = 1;
         a->model = (uint8_t)type;
     }
-    if (type > AMP_NMODELS) {                        /* BASS (6, 7: the old bass amps, the same) */
+    if (type == 5) {                                 /* BASS */
         track_bass(t, a, b, n);
         return;
     }
-    m = &AMP_MODELS[type - 1];
+    mi = amp_model_of(type);                         /* (RIFFSMITH: 6 JANGLE, 7 SKANK after BASS) */
+    drv = mi >= 1 && mi <= 4;                        /* the driven amps' gain law and gate (CLEAN and SKANK: one clean stage) */
+    m = &AMP_MODELS[mi];
     h = cab >= 1 && cab <= CAB_N ? CAB_IR[cab - 1] : cab == 0 ? CAB_IR[m->cab] : 0;
     b0 = amp_tanh(m->b1);
     {   /* GAIN. CLEAN: 2^((g - 64) / 32) on its one stage, 64 as voiced. The driven amps: on both stages, the first
          * 2^((g - 80) / 16), the second 2^((g - 80) / 24) - 80 as voiced (the factory sounds sit there), turned down
          * to 0 a light crunch (1/32 and 1/10), up to 127 the clipping thickens and squeezes (x 7.6, x 3.9). The level
          * stays about the same: the stages saturate (measured, /tmp an/ampt) */
-        int32_t gk = t->p[P_AGAIN] - (type > 1 ? 80 : 64);
-        g1 = (int32_t)((((uint64_t)m->g1 << 8) * pow2_q16(gk * (type > 1 ? 12 : 6))) >> 24);
+        int32_t gk = t->p[P_AGAIN] - (drv ? 80 : 64);
+        g1 = (int32_t)((((uint64_t)m->g1 << 8) * pow2_q16(gk * (drv ? 12 : 6))) >> 24);
         g2 = m->g2 ? (int32_t)((((uint64_t)m->g2 << 8) * pow2_q16(gk * 8)) >> 24) : 0;
         if (g2 < 1 && m->g2)
             g2 = 1;
-        if (type > 1 && gk < 0) {                       /* below 80 the stages leave saturation: made up, measured
-                                                         * (CRNCH -29 dB at 0, HIGH -7.5, LEAD -7: ~ gk^2) */
-            static const uint8_t MKC[3] = {147, 38, 36};
-            gmk = (int32_t)(pow2_q16((gk * gk * MKC[(type - 2) % 3]) >> 10) >> 4);
+        if (drv && gk < 0) {                            /* below 80 the stages leave saturation: made up, measured
+                                                         * (CRNCH -29 dB at 0, HIGH -7.5, LEAD -7: ~ gk^2; JANGLE as CRNCH) */
+            static const uint8_t MKC[4] = {147, 38, 36, 147};
+            gmk = (int32_t)(pow2_q16((gk * gk * MKC[(mi - 1) & 3]) >> 10) >> 4);
         }
     }
     for (j = 0; j < 4u; j++) {                       /* the knobs: + up to x1 (about +6 dB) .. - x0.5 */
@@ -323,13 +329,13 @@ static void track_amp(track_t *t, int32_t *b, uint32_t n)
         kb[j] = v > 0 ? v * 260 : v * 128;          /* Q14 */
     }
     {   /* make-up per amp: a held note about as loud as the CLEAN amp's, under the master limiter (measured renders) */
-        static const int16_t MK[4] = {13000, 1840, 578, 801};    /* (1.0: HI-GAIN, LEAD as loud as before; 1.0.1: -3.4 / -2.7 dB,
+        static const int16_t MK[6] = {13000, 1840, 578, 801, 4200, 13000};   /* (RIFFSMITH: JANGLE, SKANK) */    /* (1.0: HI-GAIN, LEAD as loud as before; 1.0.1: -3.4 / -2.7 dB,
                                                          * what the refitted eq adds) */
-        mk = (int32_t)(((int64_t)MK[(type - 1) & 3] * gmk) >> 12);
+        mk = (int32_t)(((int64_t)MK[mi] * gmk) >> 12);
     }
     for (i = 0; i < n; i++) {
         int32_t x = b[i] >> AMP_IN_SHIFT, y, u0;
-        if (type > 1) {                             /* a gate (the reference's, -40 dB): between notes the driven amps
+        if (drv) {                                  /* a gate (the reference's, -40 dB): between notes the driven amps
                                                      * would raise the samples' hiss to a roar */
             int32_t ax = x < 0 ? -x : x;
             a->genv = ax > a->genv ? ax : a->genv - (a->genv >> 11);   /* (the peak, falling ~50 ms) */

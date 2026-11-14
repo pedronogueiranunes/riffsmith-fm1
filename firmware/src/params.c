@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
  * Modified for M-PYRE by History Of Sky, 2026 (CHANGELOG.md) */
+/* Modified for Riffsmith, 2026 (CHANGELOG.md) */
 /* Parameter descriptors, formatting and the page table. */
 static const char *const N_LWAVE[] = {"SIN", "TRI", "SAW", "SQR", "S&H"};
 /* SLOOP 2.6, after Felucca 1.4 / 1.5 (Leo Kuroshita) ----------------------------------------------------------------
@@ -61,12 +62,12 @@ static const char *const N_SLCR[] = {"OFF", "GATE", "STUT"};             /* SL_O
 static const char *const N_SLDIV[] = {"1/8", "1/16", "1/32", "8T", "16T", "32T"};   /* SL_DEN */
 static const char *const N_CHORD[] = {"OFF", "PW", "PW+", "OCT", "TERZ", "TRIAD", "7TH", "9TH", "SUS4"};   /* seq.c CHORD_DEG
                                                  * (M-PYRE: PW .. TERZ keep the keys chromatic: riffs) */
-static const char *const N_AMP[] = {"OFF", "CLEAN", "CRNCH", "HIGH", "LEAD", "BASS"};   /* amp.c */
+static const char *const N_AMP[] = {"OFF", "CLEAN", "CRNCH", "HIGH", "LEAD", "BASS", "JANGL", "SKANK"};   /* (RIFFSMITH: 6, 7) */   /* amp.c */
 static const char *const N_CAB[] = {"AUTO", "CLEAN", "CRNCH", "HIGH", "LEAD", "BASS", "OFF"};
 static const char *const N_PEDAL[] = {"OFF", "BOOST", "OD", "DIST", "FUZZ", "OCT"};
 static const char *const N_ROLL[] = {"1/8", "1/16", "1/32", "32T", "1/64"};   /* seq.c ROLL_DEN */
 static const char *const N_ENGNAME[] = {"ANALOG", "DIGITAL", "PHASE", "LOFI", "SAMPLE", "VOICE", "TRIO", "WHEEL", "GRAIN",
-                                        "FM6", "PHYS", "NOISE",
+                                        "FM6", "GUITAR", "NOISE",   /* (RIFFSMITH: GUITAR in PHYS's slot) */
 #if FELUCCA_SLICE
                                              "SLICE",
 #endif

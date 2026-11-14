@@ -8,6 +8,7 @@ the GNU General Public License, version 3 only (`GPL-3.0-only`, full text in `LI
 - Copyright (C) 2026 isod89 and the SLOOP contributors (SLOOP)
 - Copyright (C) 2026 3dSam (Clipper: the HYBRID voice, `firmware/src/eng_hybrid.c`, `firmware/src/hybrid_patches.h`)
 - Copyright (C) 2026 History Of Sky (M-PYRE)
+- Copyright (C) 2026 Riffsmith contributors (Riffsmith: `eng_guitar.c`, the JANGL and SKANK amps, `tools/prep_riffsmith_kit.py`, `tests/riffsmith_demos.py`, and the changes listed in CHANGELOG.md)
 
 Files changed for M-PYRE say so in their header ("Modified for M-PYRE by History Of Sky, 2026"); files written for
 it carry History Of Sky's copyright. [CHANGELOG.md](CHANGELOG.md) lists what changed from SLOOP 2.8.1.

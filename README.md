@@ -1,3 +1,68 @@
+# Riffsmith for the M-VAVE FM-1
+
+**A guitar firmware for indie, metal and reggae**, forked from [M-PYRE](https://github.com/HistoryOfSky/m-pyre) by
+History Of Sky (itself based on [SLOOP](https://github.com/isod89/sloop-fm1) and
+[Felucca](https://github.com/hugelton/Felucca)). Free software, GPL-3.0-only. Companion plugin (VST3 / AU / AUv3 /
+standalone): [riffsmith](https://github.com/pedronogueiranunes/riffsmith).
+
+> **Status: early development, not yet flashed on a device.** Built and tested on the host simulator only. Install it
+> at your own risk and keep M-VAVE's M-UPGRADE with the official V15 at hand to go back.
+
+## What Riffsmith adds to M-PYRE
+
+- **GUITAR, a synthesised guitar engine** (`firmware/src/eng_guitar.c`): six modelled strings (extended
+  Karplus-Strong, fixed point), so the guitars play **without the sound pack**. A triangle pluck at the pick position
+  plus a pick scrape, a tuned string with a brightness filter (within 1 cent across the neck in the host test), palm
+  mutes, the finger choke of a reggae skank (CHOP), per-string drift and a tone pot. Parameters: PICK BRIT SUST MUTE /
+  CHOP HARD DRIFT TONE. It takes PHYS's engine slot (M-PYRE builds without PHYS), and all of M-PYRE's guitar controls
+  work on it: strum, chords, bend, vibrato, palm mute (LIVE view, a step's ART), the pedals, the amps and the cabinets.
+- **Two new amps**: **JANGL** (indie: a class-A style chime that just breaks up) and **SKANK** (reggae: clean and thin,
+  the lows cut for the bass, a bright honk for the chop). AMP 6 and 7, after BASS. JANGL is double-tracked like the
+  other rhythm amps.
+- **Ten synthesised guitar sounds**, first in PRESETS > GTR:
+  - Indie: **JANGLE**, **INDIE CRN**, **DREAM ARP**
+  - Metal: **SYN CHUG**, **SYN DJENT**, **SYN LEAD**
+  - Reggae: **ONE DROP**, **DUB CHOP**, **SKA UP**
+  - **STRING DI** (no amp)
+- **A public build**: `tools/prep_riffsmith_kit.py` makes the built-in drum kit from the CC0 kit in this tree, because
+  M-PYRE's own drum recordings and cabinet IRs are not in its public repository. Without them the build uses a
+  filter-based cabinet.
+- `tests/riffsmith_demos.py` renders an indie, a metal and a reggae phrase through the firmware's own DSP.
+
+## Build (Riffsmith)
+
+```sh
+pip3 install Pillow numpy scipy fonttools      # + ffmpeg
+python3 tools/prep_riffsmith_kit.py            # the drum kit (instead of tools/prep_mpyre.py)
+./build.sh                                     # JieLi toolchain + AC79 SDK files, see BUILDING.md
+```
+
+Host simulator and demos (any Linux/macOS with a C compiler, no toolchain):
+
+```sh
+mkdir -p build/gen build/host
+for g in gen_font:felucca_font.h gen_icons:felucca_icons.h gen_tables:felucca_tables.h gen_samples:felucca_samples.h \
+         gen_drumkits:felucca_drumkits.h gen_fm6_patches:felucca_fm6.h gen_mpyre_splash:sloop_logo.h \
+         gen_mpyre_amp:mpyre_amp.h gen_mpyre_amplogo:mpyre_amplogo.h; do
+  python3 tools/${g%%:*}.py build/gen/${g##*:}; done
+cc -O2 -w -Ibuild/gen -Ifirmware/src -Itests -o build/host/mpyre_render tests/mpyre_render.c -lm
+python3 tests/riffsmith_demos.py
+```
+
+The guitar, palm-mute and bass **samples** of M-PYRE still work: install its `soundpack.bin` (CC BY 4.0, History Of
+Sky, from the [M-PYRE releases](https://github.com/HistoryOfSky/m-pyre/releases)) with the editor.
+
+## Still to do
+
+- First flash on a real FM-1, then CPU and voice-budget checks on the device
+- Rebrand: boot picture, amp wordmarks, USB name and package identity (still M-PYRE's)
+- Amp faces on the amp view for JANGL and SKANK (they show the bass amp's face for now)
+- Style patterns in SEQ > PATTERNS (indie strum, one-drop skank, ska offbeat, metal gallop)
+
+---
+
+*The original M-PYRE README follows.*
+
 <p align="center"><img src="assets/mpyre/splash.png" alt="M-PYRE by History Of Sky" width="240"></p>
 
 <p align="center"><b>It's not a groovebox. It's a RIFFBOX.</b><br>

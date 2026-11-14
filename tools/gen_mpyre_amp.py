@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 History Of Sky (M-PYRE)
+# Modified for Riffsmith, 2026 (CHANGELOG.md): the JANGLE and SKANK amps
 """M-PYRE: the amps' fixed filters and the cabinets (impulse responses) -> build/gen/mpyre_amp.h
 
   tools/gen_mpyre_amp.py OUT.h
@@ -89,6 +90,19 @@ AMPS = [
          eq=[biquad("peak", 158.59, FS, 0.84, 8.74), biquad("peak", 540.48, FS, 3.0, -7.16), biquad("peak", 1402.09, FS, 0.53, -4.61),
              biquad("peak", 4362.85, FS, 1.17, 1.28), biquad("highshelf", 8218.14, FS, 0.57, 9.49)],
          cab=3, full=1),
+    # RIFFSMITH: two more amps, after the four (amp.c numbers them 6 and 7: BASS keeps 5).
+    # JANGLE, indie: a class-A style chime - the lows thinned before a gentle stage that only just breaks up when dug
+    # in, the upper mids (~2.5 kHz) and the top lifted after it; on the clean cabinet
+    dict(name="JANGLE", pre=[biquad("hp", 110, FS, 0.7), biquad("peak", 2400, FS, 0.9, 4), biquad("lp", 11000, FS, 0.7)],
+         g1=72, b1=1800, mid=[biquad("lp", 12000, 2 * FS), biquad("hp", 50, 2 * FS), NONE], g2=18, g3=0,
+         post=[biquad("lowshelf", 140, FS, 0.7, -2), biquad("peak", 2800, FS, 0.8, 3), biquad("highshelf", 4500, FS, 0.7, 4)],
+         cab=0),
+    # SKANK, reggae: clean and thin - a steep cut under ~250 Hz (the bass and the kick own the low end), a honk at
+    # ~1.5 kHz and a bright top for the chop; one clean stage
+    dict(name="SKANK", pre=[biquad("hp", 240, FS, 0.7), biquad("hp", 240, FS, 0.7), biquad("peak", 1500, FS, 0.9, 4)],
+         g1=28, b1=0, mid=[NONE, NONE, NONE], g2=0, g3=0,
+         post=[biquad("lowshelf", 220, FS, 0.7, -5), biquad("peak", 3200, FS, 0.9, 3), biquad("highshelf", 5500, FS, 0.7, 2)],
+         cab=0),
 ]
 # the knobs' bands (parallel: y = x + gain * band(x)): BASS, MID, TREBLE, PRESENCE
 BANDS = [biquad("lp", 120, FS, 0.6), biquad("bp", 700, FS, 0.8), biquad("hp", 2200, FS, 0.6), biquad("bp", 4000, FS, 0.9)]
